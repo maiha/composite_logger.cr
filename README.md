@@ -1,4 +1,4 @@
-# composite_logger.cr
+# composite_logger.cr [![Build Status](https://travis-ci.org/maiha/composite_logger.cr.svg?branch=master)](https://travis-ci.org/maiha/composite_logger.cr)
 
 Logger interface to write to multiple loggers for [Crystal](http://crystal-lang.org/).
 
@@ -17,7 +17,7 @@ Add this to your application's `shard.yml`:
 dependencies:
   composite_logger:
     github: maiha/composite_logger.cr
-    version: 0.1.0
+    version: 0.2.0
 ```
 
 ## Usage

@@ -3,6 +3,7 @@ require "logger"
 class CompositeLogger < Logger
   include Enumerable(Logger)
 
+  property loggers
   @memory : IO::Memory?
   
   def initialize(@loggers : Array(Logger), memory : Logger::Severity? = nil)
@@ -53,11 +54,11 @@ class CompositeLogger < Logger
 end
 
 class CompositeLogger
-  def self.new(logger : CompositeLogger) : CompositeLogger
-    logger
+  def self.new(logger : CompositeLogger, **args) : CompositeLogger
+    CompositeLogger.new(logger.loggers, **args)
   end
 
-  def self.new(logger : Logger) : CompositeLogger
-    CompositeLogger.new([logger])
+  def self.new(logger : Logger, **args) : CompositeLogger
+    CompositeLogger.new([logger], **args)
   end
 end
