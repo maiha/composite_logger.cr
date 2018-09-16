@@ -32,16 +32,17 @@ describe CompositeLogger do
     CompositeLogger.new(composite, memory: Logger::ERROR)
   end
   
-  describe "#memory" do
+  describe "#memory, #memory?" do
     it "provides as a handy in-memory logging" do
       loggers = [Logger.new(nil)]
       logger = CompositeLogger.new(loggers, memory: Logger::ERROR)
 
       logger.info("info")
       logger.memory.to_s.empty?.should be_true
+      logger.memory?.to_s.empty?.should be_true
 
       logger.error("error")
-      logger.memory.to_s.empty?.should be_false
+      logger.memory?.to_s.empty?.should be_false
     end
 
     it "raises when no memory options are given" do
@@ -51,6 +52,8 @@ describe CompositeLogger do
       expect_raises(Exception, /Memory logger is not enabled/) do
         logger.memory
       end
+
+      logger.memory?.should eq(nil)
     end
   end
 end

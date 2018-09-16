@@ -14,6 +14,12 @@ class CompositeLogger < Logger
     super(nil)
   end
 
+  def memory? : IO::Memory?
+    memory
+  rescue
+    nil
+  end
+
   def memory : IO::Memory
     @memory || raise "Memory logger is not enabled"
   end
