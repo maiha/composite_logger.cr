@@ -1,4 +1,5 @@
 require "logger"
+require "./ext/logger"
 
 class CompositeLogger < Logger
   include Enumerable(Logger)
@@ -66,5 +67,19 @@ class CompositeLogger
 
   def self.new(logger : Logger, **args) : CompositeLogger
     CompositeLogger.new([logger], **args)
+  end
+
+  def self.new(loggers : Array(Hash(String, String)), **args) : CompositeLogger
+    loggers = loggers.map{|hash|
+      mode = hash["mode"]?.try(&.to_s) || "w+"
+      path = hash["path"]?.try(&.to_s) || "STDOUT"
+      io = {"STDOUT" => STDOUT, "STDERR" => STDERR}[path]? || File.open(path, mode)
+      logger = Logger.new(io)
+      logger.level = Logger::Severity.parse(hash["level"].to_s) if hash["level"]?
+      logger.formatter = hash["format"].to_s if hash["format"]?
+      logger
+    }
+
+    CompositeLogger.new(loggers, **args)
   end
 end
