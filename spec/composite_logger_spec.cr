@@ -6,6 +6,13 @@ private def messages_in(io) : Array(String)
 end
 
 describe CompositeLogger do
+  it "accepts no args" do
+    logger = CompositeLogger.new
+    logger.loggers.size.should eq(0)
+    logger.loggers << Logger.new(nil)
+    logger.loggers.size.should eq(1)
+  end
+
   it "works with multiple loggers" do
     debug = IO::Memory.new
     info  = IO::Memory.new

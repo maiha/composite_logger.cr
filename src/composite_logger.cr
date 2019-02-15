@@ -4,10 +4,11 @@ require "./ext/logger"
 class CompositeLogger < Logger
   include Enumerable(Logger)
 
-  property loggers
+  property loggers : Array(Logger)
   @memory : IO::Memory?
   
-  def initialize(@loggers : Array(Logger), memory : Logger::Severity? = nil)
+  def initialize(loggers : Array(Logger)? = nil, memory : Logger::Severity? = nil)
+    @loggers = loggers || Array(Logger).new
     if memory
       @memory = IO::Memory.new
       @loggers << Logger.new(@memory).tap(&.level = memory)

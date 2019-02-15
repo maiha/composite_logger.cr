@@ -1,8 +1,13 @@
-# Add feature about `formatter=(str : String)` to `Logger`
+# Add new features to `Logger`
+# - `formatter=(str : String)` 
+# - `level=(str : String)`
 #
 # ```crystal
 # logger.formatter = "{{mark}}, [{{time=%H:%M}}] {{prog=[%s] }}{{message}}"
 # logger.info "foo", "main" # => "I, 23:57 [main] foo"
+#
+# logger.level = "INFO"
+# logger.level # => Logger::Severity::INFO
 # ```
 class Logger
   def formatter=(str : String)
@@ -34,5 +39,9 @@ class Logger
         end
       }
     end
+  end
+
+  def level=(str : String)
+    self.level = Logger::Severity.parse(str)
   end
 end

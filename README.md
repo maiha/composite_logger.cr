@@ -54,6 +54,15 @@ unless logger.memory.to_s.empty?
 end
 ```
 
+### `Logger#level=(str : String)`
+
+This library enhanced stdlib `Logger#level=` to accept level string for handy accessor.
+
+```crystal
+logger = Logger.new(nil)
+logger.level = "DEBUG"
+```
+
 ### `Logger#formatter=(fmt : String)`
 
 This library enhanced stdlib `Logger#formtter=` to accept format string.

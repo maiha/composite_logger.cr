@@ -63,6 +63,24 @@ describe Logger do
       apply("{{xxx}}").should eq("{{xxx}}")
     end
   end
+
+  describe "#level=" do
+    it "accepts String" do
+      logger = Logger.new(nil)
+      logger.level.should eq(Logger::Severity::INFO)
+      logger.level = "DEBUG"
+      logger.level.should eq(Logger::Severity::DEBUG)
+      logger.level = "info"
+      logger.level.should eq(Logger::Severity::INFO)
+    end
+
+    it "raises when invalid string is given" do
+      logger = Logger.new(nil)
+      expect_raises(ArgumentError) do
+        logger.level = "xxx"
+      end
+    end
+  end
 end
 
 private def apply(fmt : String, prog = "main") : String
