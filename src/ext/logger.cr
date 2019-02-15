@@ -9,10 +9,15 @@
 # logger.level = "INFO"
 # logger.level # => Logger::Severity::INFO
 # ```
+
+require "colorize"
+
 class Logger
+  property colorize : Bool = false
+  
   def formatter=(str : String)
     @formatter = Logger::Formatter.new do |severity, datetime, progname, message, io|
-      io << str.gsub(/\{\{([^=}]+)=?(.*?)\}\}/) {
+      msg = str.gsub(/\{\{([^=}]+)=?(.*?)\}\}/) {
         key = $1
         fmt = $2.empty? ? nil : $2
         begin
@@ -38,6 +43,15 @@ class Logger
           "{{#{key}:#{err}}}"
         end
       }
+      if colorize
+        case severity
+        when .error?, .fatal?
+          msg = msg.colorize(:red)
+        when .warn?
+          msg = msg.colorize(:yellow)
+        end
+      end
+      io << msg
     end
   end
 

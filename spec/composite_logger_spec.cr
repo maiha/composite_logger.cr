@@ -7,10 +7,7 @@ end
 
 describe CompositeLogger do
   it "accepts no args" do
-    logger = CompositeLogger.new
-    logger.loggers.size.should eq(0)
-    logger.loggers << Logger.new(nil)
-    logger.loggers.size.should eq(1)
+    CompositeLogger.new
   end
 
   it "works with multiple loggers" do
@@ -62,5 +59,28 @@ describe CompositeLogger do
 
       logger.memory?.should eq(nil)
     end
+  end
+
+  describe "#<<" do
+    it "appends logger" do
+      logger = CompositeLogger.new
+      logger.size.should eq(0)
+      logger << Logger.new(nil)
+      logger.size.should eq(1)
+    end
+  end
+  
+  it "accepts Hash" do
+    logger = CompositeLogger.new
+    logger << {"level" => "DEBUG"}
+    logger.size.should eq(1)
+    logger.first.level.debug?.should be_true
+  end
+
+  it "accepts colorize" do
+    logger = CompositeLogger.new
+    logger << {"level" => "DEBUG", "colorize" => true}
+    logger.size.should eq(1)
+    logger.first.colorize.should be_true
   end
 end

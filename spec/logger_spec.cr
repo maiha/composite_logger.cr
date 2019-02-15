@@ -81,6 +81,25 @@ describe Logger do
       end
     end
   end
+
+  describe "(colorize)" do
+    it "colorizes if colorize is set" do
+      io = IO::Memory.new
+      logger = Logger.new(io)
+      logger.formatter = "{{message}}"
+      logger.colorize = true
+      logger.error "foo"
+      io.to_s.should eq("\e[31mfoo\e[0m\n")
+    end
+
+    it "shows as is if colorize is not set" do
+      io = IO::Memory.new
+      logger = Logger.new(io)
+      logger.formatter = "{{message}}"
+      logger.error "foo"
+      io.to_s.should eq("foo\n")
+    end
+  end
 end
 
 private def apply(fmt : String, prog = "main") : String

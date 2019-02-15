@@ -28,6 +28,14 @@ class CompositeLogger < Logger
 
   delegate each, to: @loggers
 
+  def <<(logger : Logger)
+    @loggers << logger
+  end
+  
+  def <<(hash : Hash)
+    self << self.class.build_logger(hash)
+  end
+  
   {% for method in %w( level= formatter= ) %}
     def {{method.id}}(v)
       each do |logger|
@@ -62,6 +70,17 @@ class CompositeLogger < Logger
 end
 
 class CompositeLogger
+  def self.build_logger(hash : Hash)
+    mode = hash["mode"]?.try(&.to_s) || "w+"
+    path = hash["path"]?.try(&.to_s) || "STDOUT"
+    io = {"STDOUT" => STDOUT, "STDERR" => STDERR}[path]? || File.open(path, mode)
+    logger = Logger.new(io)
+    logger.level = hash["level"].to_s if hash["level"]?
+    logger.formatter = hash["format"].to_s if hash["format"]?
+    logger.colorize = true if hash["colorize"]?
+    logger
+  end
+
   def self.new(logger : CompositeLogger, **args) : CompositeLogger
     CompositeLogger.new(logger.loggers, **args)
   end
@@ -71,16 +90,7 @@ class CompositeLogger
   end
 
   def self.new(loggers : Array(Hash(String, String)), **args) : CompositeLogger
-    loggers = loggers.map{|hash|
-      mode = hash["mode"]?.try(&.to_s) || "w+"
-      path = hash["path"]?.try(&.to_s) || "STDOUT"
-      io = {"STDOUT" => STDOUT, "STDERR" => STDERR}[path]? || File.open(path, mode)
-      logger = Logger.new(io)
-      logger.level = Logger::Severity.parse(hash["level"].to_s) if hash["level"]?
-      logger.formatter = hash["format"].to_s if hash["format"]?
-      logger
-    }
-
+    loggers = loggers.map{|hash| build_logger(hash)}
     CompositeLogger.new(loggers, **args)
   end
 end

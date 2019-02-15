@@ -90,10 +90,30 @@ logger.info "foo" # => "INFO,foo\n"
 |`{{mark}}`        |          |`severity.to_s[0]`     | "I"                   |
 |`{{time}}`        |`datetime`|`datetime`             | "2019-01-24 21:03:45" |
 |`{{time=%H:%M}}`  |          |`datetime.to_s("...")` | "21:03"               |
-|`{{name}}`        |`progname`|`progname`             | "main"                |
+|`{{prog}}`        |`progname`|`progname`             | "main"                |
 |`{{message}}`     |          |`message`              | "foo"                 |
 |`{{pid=%6s}}`     |          |`Process.pid`          | "  5361"              |
 |`{{xxx}}`         |          | (leaves unknowns)     | "{{xxx}}"             |
+
+The default formatter in stdlib can be represented as follows.
+```crystal
+"{{mark}}, [{{time}}\#{{pid}}] {{prog=%s: }}{{message}}"
+```
+
+### `Logger#colorize = true`
+
+This library enhanced stdlib `Logger` to colorize messages.
+
+- ERROR, FATAL: red
+- WARN: yellow
+
+This is enabled only when `colorize == true` and above `formatter=` is used.
+
+```crystal
+logger.formatter = "{{message}}"
+logger.colorize = true
+logger.error "foo" # => "\e[31mfoo\e[0m\n"
+```
 
 ## Contributing
 
