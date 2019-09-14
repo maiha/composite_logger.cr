@@ -80,6 +80,15 @@ describe Logger do
         logger.level = "xxx"
       end
     end
+
+    it "accepts String with exact mode" do
+      io = IO::Memory.new
+      logger = Logger.new(io, level: "=INFO")
+      logger.info("info")
+      logger.warn("warn")
+
+      messages_in(io).should eq(["info"])
+    end
   end
 
   describe "(colorize)" do

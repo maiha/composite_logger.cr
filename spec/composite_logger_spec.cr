@@ -1,10 +1,5 @@
 require "./spec_helper"
 
-private def messages_in(io) : Array(String)
-  ary = io.to_s.chomp.gsub(/^.*? -- : (.*?)$/m){$1}.split(/\n/)
-  (ary == [""]) ? Array(String).new : ary
-end
-
 describe CompositeLogger do
   it "accepts no args" do
     CompositeLogger.new

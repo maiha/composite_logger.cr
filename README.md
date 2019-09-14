@@ -9,8 +9,14 @@ logger.info("hello")
 # => (a file) "hello"
 ```
 
-In addition, this add a `Logger#formatter=(str : String)` method to core library.
-See: [src/ext/logger.cr](./src/ext/logger.cr)
+In addition, this extends the new methods to stdlib `Logger`.
+```
+Logger
+  def formatter=(fmt : String)
+  def level=(str : String)
+```
+
+See: [src/ext/logger.cr](./src/ext/logger.cr) for detail
 
 ## Installation
 
@@ -54,15 +60,6 @@ unless logger.memory.to_s.empty?
 end
 ```
 
-### `Logger#level=(str : String)`
-
-This library enhanced stdlib `Logger#level=` to accept level string for handy accessor.
-
-```crystal
-logger = Logger.new(nil)
-logger.level = "DEBUG"
-```
-
 ### `Logger#formatter=(fmt : String)`
 
 This library enhanced stdlib `Logger#formtter=` to accept format string.
@@ -79,6 +76,23 @@ This can be simply refactored by `{{KEYWORD(=FORMAT)}}` as follows.
 ```crystal
 logger.formatter = "{{severity}},{{message}}"
 logger.info "foo" # => "INFO,foo\n"
+```
+
+### `Logger#level=(str : String)`
+
+This library enhanced stdlib `Logger#level=` to accept level string for handy accessor.
+
+```crystal
+logger = Logger.new(nil)
+logger.level = "DEBUG"
+```
+
+In addition, it provides a **exact mode** that stores only the exact same level messages.
+
+```crytsal
+logger = Logger.new(STDOUT, level: "=INFO")
+logger.info "foo" # Of course stored
+logger.warn "foo" # ignored **(NEW)**
 ```
 
 ##### available keywords

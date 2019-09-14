@@ -14,7 +14,15 @@ require "colorize"
 
 class Logger
   property colorize : Bool = false
-  
+  @exact_level : Bool = false
+
+  def self.new(io : IO?, level : String, formatter : Formatter | String = DEFAULT_FORMATTER, progname = "") : Logger
+    logger = new(io, progname: progname)
+    logger.level = level
+    logger.formatter = formatter
+    return logger
+  end
+
   def formatter=(str : String)
     @formatter = Logger::Formatter.new do |severity, datetime, progname, message, io|
       msg = str.gsub(/\{\{([^=}]+)=?(.*?)\}\}/) {
@@ -56,6 +64,24 @@ class Logger
   end
 
   def level=(str : String)
+    case str
+    when /^=(.*)$/
+      @exact_level = true
+      str = $1
+    end
     self.level = Logger::Severity.parse(str)
+  end
+
+  # overwrites stdlib "src/logger.cr"
+  def log(severity, message, progname = nil)
+    return if severity < level || !@io
+    return if @exact_level && severity != level
+    write(severity, Time.local, progname || @progname, message)
+  end
+
+  def log(severity, progname = nil)
+    return if severity < level || !@io
+    return if @exact_level && severity != level
+    write(severity, Time.local, progname || @progname, yield)
   end
 end
