@@ -36,7 +36,7 @@ class CompositeLogger < Logger
     self << self.class.build_logger(hash)
   end
   
-  {% for method in %w( level= formatter= ) %}
+  {% for method in %w( colorize= formatter= level= level_op= ) %}
     def {{method.id}}(v)
       each do |logger|
         logger.{{method.id}}(v)
@@ -52,7 +52,7 @@ class CompositeLogger < Logger
     end
   {% end %}
 
-  {% for method in %w( debug info warn error fatal ) %}
+  {% for method in %w( debug info warn error fatal log ) %}
     def {{method.id}}(*args, **options)
       each do |logger|
         logger.{{method.id}}(*args, **options)

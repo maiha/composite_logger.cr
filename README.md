@@ -8,7 +8,7 @@ require "composite_logger"
 
 logger = CompositeLogger.new
 logger << Logger.new(STDOUT, level: "=INFO")
-logger << Logger.new(STDERR, level: ">INFO")
+logger << Logger.new(STDERR, level: ">=WARN")
 logger << Logger.new("err.log", level: "ERROR")
 
 logger.warn("API: HTTP 500")

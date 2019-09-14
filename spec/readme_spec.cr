@@ -8,7 +8,7 @@ describe "README" do
 
     logger = CompositeLogger.new
     logger << Logger.new(stdout, level: "=INFO")
-    logger << Logger.new(stderr, level: ">INFO")
+    logger << Logger.new(stderr, level: ">=WARN")
     logger << Logger.new(errlog, level: "ERROR")
 
     logger.info("foo")  # (stdout) foo
