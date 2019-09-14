@@ -1,22 +1,43 @@
 # composite_logger.cr [![Build Status](https://travis-ci.org/maiha/composite_logger.cr.svg?branch=master)](https://travis-ci.org/maiha/composite_logger.cr)
 
 Logger interface to write to multiple loggers for [Crystal](http://crystal-lang.org/).
+In addition, this extends handy methods to stdlib `Logger`.
 
 ```crystal
-logger = CompositeLogger.new(loggers)
-logger.info("hello")
-# => (stdout) "hello"
-# => (a file) "hello"
+require "composite_logger"
+
+logger = CompositeLogger.new
+logger << Logger.new(STDOUT, level: "=INFO")
+logger << Logger.new(STDERR, level: ">INFO")
+logger << Logger.new("err.log", level: "ERROR")
+
+logger.warn("API: HTTP 500")
+logger.error("DB: file not found")
+logger.info("done")
 ```
 
-In addition, this extends the new methods to stdlib `Logger`.
 ```
-Logger
+--- STDOUT ---
+done
+--- STDERR ---
+API: HTTP 500
+DB: file not found
+--- err.log ---
+DB: file not found
+```
+
+#### API
+
+```crystal
+class CompositeLogger < Logger
+  def initialize(loggers : Array(Logger), ...)
+
+class Logger
+  def colorize=(bool : Bool)
   def formatter=(fmt : String)
   def level=(str : String)
+  def level_op=(op : LevelOp)
 ```
-
-See: [src/ext/logger.cr](./src/ext/logger.cr) for detail
 
 ## Installation
 
@@ -29,35 +50,40 @@ dependencies:
     version: 0.3.2
 ```
 
-## Usage
+## Usage (CompositeLogger)
 
-```crystal
-require "composite_logger"
-```
+### logging to both STDOUT, STDERR and FILE
 
-### logging to both File and STDOUT
-
-```crystal
-loggers = [
-  Logger.new(STDOUT),
-  Logger.new(File.open("app.log")),
-]
-logger = CompositeLogger.new(loggers)
-logger.info("hello")
-```
+already described in top usage.
 
 ### in memory logging
 
 `memory:` option provides a handy in-memory logging.
 
 ```crystal
-loggers = [Logger.new(STDOUT)]
-logger = CompositeLogger.new(loggers, memory: Logger::ERROR)
+logger = CompositeLogger.new(memory: Logger::ERROR)
 ...
 unless logger.memory.to_s.empty?
   STDERR.puts "Some errors occurred while running program."
   exit -1
 end
+```
+
+## Usage (Logger extensions)
+
+### `Logger#colorize = true`
+
+This library enhanced stdlib `Logger` to colorize messages.
+
+- ERROR, FATAL: red
+- WARN: yellow
+
+This is enabled only when `colorize == true` and `formatter=` is used.
+
+```crystal
+logger.formatter = "{{message}}"
+logger.colorize = true
+logger.error "foo" # => "\e[31mfoo\e[0m\n"
 ```
 
 ### `Logger#formatter=(fmt : String)`
@@ -76,23 +102,6 @@ This can be simply refactored by `{{KEYWORD(=FORMAT)}}` as follows.
 ```crystal
 logger.formatter = "{{severity}},{{message}}"
 logger.info "foo" # => "INFO,foo\n"
-```
-
-### `Logger#level=(str : String)`
-
-This library enhanced stdlib `Logger#level=` to accept level string for handy accessor.
-
-```crystal
-logger = Logger.new(nil)
-logger.level = "DEBUG"
-```
-
-In addition, it provides a **exact mode** that stores only the exact same level messages.
-
-```crytsal
-logger = Logger.new(STDOUT, level: "=INFO")
-logger.info "foo" # Of course stored
-logger.warn "foo" # ignored **(NEW)**
 ```
 
 ##### available keywords
@@ -114,20 +123,26 @@ The default formatter in stdlib can be represented as follows.
 "{{mark}}, [{{time}}\#{{pid}}] {{prog=%s: }}{{message}}"
 ```
 
-### `Logger#colorize = true`
+### `Logger#level=(str : String)`
 
-This library enhanced stdlib `Logger` to colorize messages.
-
-- ERROR, FATAL: red
-- WARN: yellow
-
-This is enabled only when `colorize == true` and above `formatter=` is used.
+This library enhanced stdlib `Logger#level=` to accept level string for handy accessor.
 
 ```crystal
-logger.formatter = "{{message}}"
-logger.colorize = true
-logger.error "foo" # => "\e[31mfoo\e[0m\n"
+logger = Logger.new(nil)
+logger.level = "DEBUG"
 ```
+
+In addition, it provides a **level op** as level quantifier.
+
+```crytsal
+logger = Logger.new(STDOUT, level: "=INFO")
+logger.info "foo" # Of course stored
+logger.warn "foo" # ignored **(NEW)**
+```
+
+##### available quantifier
+
+- `>=`(default), `=`, `>`, `<`, `<=`, `<>`, `!=`(same as `<>`)
 
 ## Contributing
 

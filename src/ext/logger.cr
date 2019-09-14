@@ -14,7 +14,31 @@ require "colorize"
 
 class Logger
   property colorize : Bool = false
-  @exact_level : Bool = false
+
+  enum LevelOp
+    LT
+    LE
+    EQ
+    GT
+    GE
+    NE
+
+    def self.parse(op : String)
+      case op
+      when "<" ; LT
+      when "<="; LE
+      when "=" ; EQ
+      when ">" ; GT
+      when ">="; GE
+      when "<>"; NE
+      when "!="; NE
+      else
+        raise ArgumentError.new("unknown level op: #{op.inspect}")
+      end
+    end
+  end    
+
+  property level_op : LevelOp = LevelOp::GE
 
   def self.new(io : IO?, level : String, formatter : Formatter | String = DEFAULT_FORMATTER, progname = "") : Logger
     logger = new(io, progname: progname)
@@ -63,25 +87,42 @@ class Logger
     end
   end
 
+  def level_op=(op : String)
+    self.level_op = LevelOp.parse(op)
+  end
+
   def level=(str : String)
     case str
-    when /^=(.*)$/
-      @exact_level = true
-      str = $1
+    when /^([=<>]+)(.*)$/
+      self.level_op = $1
+      str = $2
     end
     self.level = Logger::Severity.parse(str)
   end
 
   # overwrites stdlib "src/logger.cr"
   def log(severity, message, progname = nil)
-    return if severity < level || !@io
-    return if @exact_level && severity != level
-    write(severity, Time.local, progname || @progname, message)
+    if @io && level_match?(severity)
+      write(severity, Time.local, progname || @progname, message)
+    end
   end
 
   def log(severity, progname = nil)
-    return if severity < level || !@io
-    return if @exact_level && severity != level
-    write(severity, Time.local, progname || @progname, yield)
+    if @io && level_match?(severity)
+      write(severity, Time.local, progname || @progname, yield)
+    end
+  end
+
+  def level_match?(severity : Severity) : Bool
+    case level_op
+    when .lt? ; severity <  level
+    when .le? ; severity <= level
+    when .eq? ; severity == level
+    when .gt? ; severity >  level
+    when .ge? ; severity >= level
+    when .ne? ; severity != level
+    else
+      raise NotImplementedError.new("#{level_op.inspect} is not supported yet")
+    end    
   end
 end
