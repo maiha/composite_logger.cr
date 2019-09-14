@@ -54,6 +54,17 @@ describe CompositeLogger do
 
       logger.memory?.should eq(nil)
     end
+
+    it "works with level_op" do
+      logger = CompositeLogger.new(memory: ">=WARN")
+
+      logger.info("info")
+      logger.memory.to_s.empty?.should be_true
+
+      logger.warn("warn")
+      logger.error("error")
+      messages_in(logger.memory?.not_nil!).should eq(["warn", "error"])
+    end
   end
 
   describe "#<<" do
