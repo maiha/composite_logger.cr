@@ -47,7 +47,7 @@ Add this to your application's `shard.yml`:
 dependencies:
   composite_logger:
     github: maiha/composite_logger.cr
-    version: 0.3.2
+    version: 0.4.0
 ```
 
 ## Usage (CompositeLogger)
