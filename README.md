@@ -1,3 +1,6 @@
+# IMPORTANT
+composite_logger.cr has been closed. Use [Pretty::Logger](https://github.com/maiha/pretty.cr) instead.
+
 # composite_logger.cr [![Build Status](https://travis-ci.org/maiha/composite_logger.cr.svg?branch=master)](https://travis-ci.org/maiha/composite_logger.cr)
 
 Logger interface to write to multiple loggers for [Crystal](http://crystal-lang.org/).
